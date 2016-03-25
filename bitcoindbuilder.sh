@@ -1,6 +1,10 @@
 #!/bin/bash
 # Automated build script 
-# tested on Debian 8.3 jessie (stable) x86_64 
+# Use at your own risk 
+#
+# tested on:
+#   * Debian 8.3 jessie (stable) x86_64 
+#   * Ubuntu 14.04 amd64
 
 set -e 
 

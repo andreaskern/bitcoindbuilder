@@ -5,6 +5,61 @@
 # tested on:
 #   * Debian 8.3 jessie (stable) x86_64 
 #   * Ubuntu 14.04 amd64
+#   * Ubuntu 16.04 amd64
+#
+# Optionally:
+# Set custom git url and branch e.g.:
+# $ bash namecoinbuilder.sh --git-url="https://github.com/kernoelpanic/namecoin-core.git" --git-branch="nc0.12.0rc2" 
+
+set -e 
+
+GIT_URL="https://github.com/namecoin/namecoin-core.git"
+GIT_BRANCH="nc0.12.0rc2"
+
+function usage()
+{
+    echo "Namecoin build script, automates building the current version of namecoin-core."
+    echo ""
+    echo "${0}"
+    echo -e "\t-h --help"
+    echo -e "\t--git-url=${GIT_URL}"
+    echo -e "\t--git-branch=${GIT_BRANCH=}"
+    echo ""
+}
+
+# main
+if [ "$1" == "" ]; then
+    usage
+    exit
+fi
+
+while [ "$1" != "" ]; do
+    PARAM=`echo $1 | awk -F= '{print $1}'`
+    VALUE=`echo $1 | sed 's/^[^=]*=//g'`
+    case $PARAM in
+        -h | --help)
+            usage
+            exit
+            ;;
+        --git-url)
+            GIT_URL=${VALUE}
+            ;;
+        --git-branch)
+            GIT_BRANCH=${VALUE}
+            ;;
+        *)
+            echo "ERROR: unknown parameter \"${PARAM}\""
+            usage
+            exit 1
+            ;;
+    esac
+    shift
+done
+
+
+echo "BB: GIT_URL    = ${GIT_URL}";
+echo "BB: GIT_BRANCH = ${GIT_BRANCH}";
+
 
 set -e 
 
@@ -39,10 +94,10 @@ if [ -a "./namecoin-core" ];
 then
 	echo "git repository already cloned ... "
 else 
-	git clone https://github.com/namecoin/namecoin-core.git	namecoin-core
+	git clone ${GIT_URL}
 fi
 cd ./namecoin-core 
-git checkout nc0.12.0rc2
+git checkout ${GIT_BRANCH}
 
 
 # Download and install BerkleyDB locally

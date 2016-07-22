@@ -5,6 +5,7 @@
 # tested on:
 #   * Debian 8.3 jessie (stable) x86_64 
 #   * Ubuntu 14.04 amd64
+#   * Ubuntu 16.04 amd64  
 #
 # Optionally:
 # Set custom git url and branch e.g.:

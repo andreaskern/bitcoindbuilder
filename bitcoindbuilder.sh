@@ -15,6 +15,7 @@ set -e
 
 GIT_URL="https://github.com/bitcoin/bitcoin.git"
 GIT_BRANCH="remotes/origin/0.12"
+DIR=$(pwd)
 
 function usage()
 {
@@ -23,7 +24,8 @@ function usage()
     echo "${0}"
     echo -e "\t-h --help"
     echo -e "\t--git-url=${GIT_URL}"
-    echo -e "\t--git-branch=${GIT_BRANCH=}"
+    echo -e "\t--git-branch=${GIT_BRANCH}"
+    echo -e "\t--dir=${DIR}"
     echo ""
 }
 
@@ -47,6 +49,9 @@ while [ "$1" != "" ]; do
         --git-branch)
             GIT_BRANCH=${VALUE}
             ;;
+        --dir)
+            DIR=${VALUE}
+            ;;
         *)
             echo "ERROR: unknown parameter \"${PARAM}\""
             usage
@@ -59,6 +64,7 @@ done
 
 echo "BB: GIT_URL    = ${GIT_URL}";
 echo "BB: GIT_BRANCH = ${GIT_BRANCH}";
+echo "BB: DIR 	     = ${DIR}";
 
 
 
@@ -89,6 +95,7 @@ libboost-thread-dev \
 
 
 # Cloneg bitcoin repository
+cd ${DIR}
 if [ -a "./bitcoin" ];
 then
 	echo "git repository already cloned ... "

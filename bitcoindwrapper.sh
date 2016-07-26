@@ -16,11 +16,12 @@
 
 set -e
 
-BITCOIND="/home/bitcoin/bitcoin_binaries/powerclient_0.12/bitcoind"
-BTC_DATA="/home/bitcoin/bitcoin_datadirs/powerclient_0.12/"
+BITCOIND="/home/bitcoin/bitcoin_bin/0.12/bitcoind"
+BTC_DATA="/home/bitcoin/bitcoin_data/0.12/"
 WALLET="wallet.dat"
 ACTION="start"
-BITCOINCLI="/home/bitcoin/bitcoin_binaries/powerclient_0.12/bitcoin-cli"
+BITCOINCLI="/home/bitcoin/bitcoin_bin/0.12/bitcoin-cli"
+PORT="8333"
 
 function usage()
 {
@@ -32,6 +33,7 @@ function usage()
     echo -e "\t--btc-data=${BTC_DATA}"
     echo -e "\t--wallet=${WALLET}"
     echo -e "\t--action=${ACTION}"
+    echo -e "\t--port=${PORT}"
     echo ""
 }
 
@@ -64,6 +66,9 @@ while [ "$1" != "" ]; do
         --bitcoincli)
             BITCOINCLI="${VALUE}"
             ;;
+        --port)
+            PORT="${VALUE}"
+            ;;
 	*)
             echo "ERROR: unknown parameter \"${PARAM}\""
             usage
@@ -77,10 +82,11 @@ echo "BITCOIND   is ${BITCOIND}";
 echo "BTC_DATA   is ${BTC_DATA}";
 echo "BITCOINCLI is ${BITCOINCLI}";
 echo "ACTION     is ${ACTION}";
+echo "PORT       is ${PORT}";
 
 if [ "${ACTION}" == "start" ];
 then
-	${BITCOIND} -daemon -txindex -datadir="${BTC_DATA}" --wallet="${WALLET}";
+	${BITCOIND} -daemon -txindex -datadir="${BTC_DATA}" -port="${PORT}" --wallet="${WALLET}";
 	exit 0 
 fi
 

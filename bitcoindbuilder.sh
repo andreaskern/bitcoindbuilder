@@ -14,7 +14,7 @@
 set -e 
 
 GIT_URL="https://github.com/bitcoin/bitcoin.git"
-GIT_BRANCH="remotes/origin/0.12"
+GIT_BRANCH="remotes/origin/0.13"
 DIR=$(pwd)
 
 function usage()

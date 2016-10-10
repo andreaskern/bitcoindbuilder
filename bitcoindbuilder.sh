@@ -15,8 +15,11 @@ set -e
 
 GIT_URL="https://github.com/bitcoin/bitcoin.git"
 GIT_BRANCH="remotes/origin/0.13"
+GIT_VERIFY="true"
 DIR=$(pwd)
+INSTALL_REQUIREMENTS="true"
 
+# print usage help 
 function usage()
 {
     echo "Bitcoin build script, automates building the current version of bitcoin-core."
@@ -25,16 +28,48 @@ function usage()
     echo -e "\t-h --help"
     echo -e "\t--git-url=${GIT_URL}"
     echo -e "\t--git-branch=${GIT_BRANCH}"
+    echo -e "\t--git-verify=${GIT_VERIFY}"
     echo -e "\t--dir=${DIR}"
+    echo -e "\t--install-requirements=${INSTALL_REQUIREMENTS}"
     echo ""
 }
 
-# main
+# install requirements for tool-chain on debian
+function debian_install_toolchain()
+{
+	echo "BB: installing tool chain ..."  
+	sudo apt-get install \
+	git \
+	build-essential \
+	g++ \
+	libtool \
+	autotools-dev \
+	automake \
+	pkg-config \
+	bsdmainutils  
+}
+
+function debian_install_requirements()
+{
+	echo "BB: installing requirements ..."
+	sudo apt-get install \
+	libssl-dev \
+	libevent-dev \
+	libboost-system-dev \
+	libboost-filesystem-dev \
+	libboost-chrono-dev \
+	libboost-program-options-dev \
+	libboost-test-dev \
+	libboost-thread-dev 
+}
+
+### main ###
 if [ "$1" == "" ]; then
     usage
     exit
 fi
 
+# parse command line args
 while [ "$1" != "" ]; do
     PARAM=`echo $1 | awk -F= '{print $1}'`
     VALUE=`echo $1 | sed 's/^[^=]*=//g'`
@@ -52,6 +87,12 @@ while [ "$1" != "" ]; do
         --dir)
             DIR=${VALUE}
             ;;
+        --git-verify)
+            GIT_VERIFY=${VALUE}
+            ;;
+        --install-requirements)
+            INSTALL_REQUIREMENTS=${VALUE}
+            ;;
         *)
             echo "ERROR: unknown parameter \"${PARAM}\""
             usage
@@ -61,38 +102,20 @@ while [ "$1" != "" ]; do
     shift
 done
 
+echo "BB: GIT_URL              = ${GIT_URL}";
+echo "BB: GIT_BRANCH           = ${GIT_BRANCH}";
+echo "BB: DIR 	               = ${DIR}";
+echo "BB: GIT_VERIFY           = ${GIT_VERIFY}";
+echo "BB: INSTALL_REQUIREMENTS = ${INSTALL_REQUIREMENTS}";
 
-echo "BB: GIT_URL    = ${GIT_URL}";
-echo "BB: GIT_BRANCH = ${GIT_BRANCH}";
-echo "BB: DIR 	     = ${DIR}";
+### start building ###
 
-
-
-# basic requirements (toolchain)
-echo "BB: installing basic requirements ..."  
-sudo apt-get install \
-git \
-build-essential \
-g++ \
-libtool \
-autotools-dev \
-automake \
-pkg-config \
-bsdmainutils  
-
-
-# bitcoin requirements
-echo "BB: installing bitcoin requirements ..."
-sudo apt-get install \
-libssl-dev \
-libevent-dev \
-libboost-system-dev \
-libboost-filesystem-dev \
-libboost-chrono-dev \
-libboost-program-options-dev \
-libboost-test-dev \
-libboost-thread-dev \
-
+# installing prerequesits
+if [ "${INSTALL_REQUIREMENTS}" == "true" ];
+then 
+  debian_install_toolchain;
+  debian_install_requirements;
+fi
 
 # Cloneg bitcoin repository
 cd ${DIR}
@@ -103,8 +126,13 @@ else
 	git clone ${GIT_URL} 	
 fi
 cd ./bitcoin 
+git fetch
 git checkout ${GIT_BRANCH}
 
+if [ "${GIT_VERIFY}" == "true" ];
+then
+	git verify-commit $(git log -n1 --pretty=format:%H)
+fi
 
 # Download and install BerkleyDB locally
 echo "BB: installing BerkleyDB from source ..."
@@ -113,7 +141,7 @@ BDB_PREFIX="${BITCOIN_ROOT}/db4"
 cd ..
 if [ -a "$BDB_PREFIX" ] && [ -a "./db-4.8.30.NC" ];
 then
-	echo "=== BB === BerkleyDB already there ..."
+	echo "BB: BerkleyDB already there ..."
 else 
 	mkdir -p $BDB_PREFIX
 	wget 'http://download.oracle.com/berkeley-db/db-4.8.30.NC.tar.gz'
@@ -130,7 +158,7 @@ cd "${BITCOIN_ROOT}"
 
 ./autogen.sh
 
-echo "=== BB === autgen DONE "
+echo "BB: autgen DONE ";
 sleep 2
 
 
@@ -157,12 +185,14 @@ CPPFLAGS="-I${BDB_PREFIX}/include/" \
 #--enable-hardening \
 #--with-pic
 
-echo "=== BB === configure DONE "
+echo "BB: configure DONE ";
 sleep 2
 
 make clean
-echo "=== BB === make clean DONE "
+echo "BB: make clean DONE ";
 sleep 2
 
 make
+echo "BB: make DONE ";
 
+exit

@@ -16,11 +16,11 @@
 
 set -e
 
-BITCOIND="/home/bitcoin/bitcoin_bin/0.12/bitcoind"
-BTC_DATA="/home/bitcoin/bitcoin_data/0.12/"
+BITCOIND="/home/bitcoin/bitcoin_bin/0.13/bitcoind"
+BTC_DATA="/home/bitcoin/bitcoin_data/0.13/"
 WALLET="wallet.dat"
 ACTION="start"
-BITCOINCLI="/home/bitcoin/bitcoin_bin/0.12/bitcoin-cli"
+BITCOINCLI="/home/bitcoin/bitcoin_bin/0.13/bitcoin-cli"
 PORT="8333"
 
 function usage()
